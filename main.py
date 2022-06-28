@@ -41,6 +41,29 @@ my_tree = ttk.Treeview(root)
 
 
 #function
+
+
+#placeholder for entry
+ph1=tk.StringVar()
+ph2=tk.StringVar()
+ph3=tk.StringVar()
+ph4=tk.StringVar()
+ph5=tk.StringVar()
+
+#set placeholder values
+def setph(word, num):
+    if num ==1:
+        ph1.set(word)
+    if num ==2:
+        ph2.set(word)
+    if num ==3:
+        ph3.set(word)
+    if num ==4:
+        ph4.set(word)
+    if num ==5:
+        ph5.set(word)
+    
+
 def read():
     conn=connection()
     cursor=conn.cursor()
@@ -73,6 +96,67 @@ def add():
 
     refreshTable()
 
+def reset():
+    desicion=messagebox.askquestion("warning!!", "Delete all data?")
+    if desicion != "yes":
+        return
+    else:
+        try:
+           conn = connection()
+           cursor = conn.cursor()
+           cursor.execute("DELETE FROM student")
+           conn.commit()
+           conn.close()
+        except:
+            messagebox.showinfo("Error", "Sorry an error occured")
+            return
+
+    refreshTable()
+    
+def delete():
+    desicion=messagebox.askquestion("warning!!", "Delete all selected data?")
+    if desicion != "yes":
+        return
+    else:
+        selected_item = my_tree.selection()[0]
+        deleteData = str(my_tree.item(selected_item)['values'][0])
+        try:
+           conn = connection()
+           cursor = conn.cursor()
+           cursor.execute("DELETE FROM student WHERE STUDID = '" + str(deleteData)+"'")
+           conn.commit()
+           conn.close()
+        except:
+            messagebox.showinfo("Error", "Sorry an error occured")
+            return
+
+    refreshTable() 
+
+def select():
+    desicion=messagebox.askquestion("warning!!", "Delete all selected data?")
+    if desicion != "yes":
+        return
+    else:
+        try:
+        selected_item=my_tree.selection()[0]
+        studid= str(my_tree.item(selected_item)['values'][0])
+        fname= str(my_tree.item(selected_item)['values'][1])
+        lname= str(my_tree.item(selected_item)['values'][2])
+        address= str(my_tree.item(selected_item)['values'][3])
+        phone= str(my_tree.item(selected_item)['values'][4])
+         
+        setph(studid, 1)
+        setph(fname, 2)
+        setph(lname, 3)
+        setph(address, 4)
+        setph(phone, 5)
+    except:
+            messagebox.showinfo("Error", "Please select a data row")
+            return
+
+    refreshTable()
+
+    
 #gui 
 label=Label(root,text="Aplikasi Database Karyawan",font=('Arial Bold',30))
 label.grid(row=0,column=0,columnspan=8,rowspan=2,padx=50,pady=40)
@@ -111,16 +195,16 @@ updateBtn =Button(
     root, text ="Update", padx=65, pady=25, width=10, bd=5, font=('Arial',15), bg="#84E8F8"
 )
 deleteBtn =Button(
-    root, text ="Delete", padx=65, pady=25, width=10, bd=5, font=('Arial',15), bg="#FF9999"
+    root, text ="Delete", padx=65, pady=25, width=10, bd=5, font=('Arial',15), bg="#FF9999", command=delete
 )
 searchBtn =Button(
     root, text ="Search", padx=65, pady=25, width=10, bd=5, font=('Arial',15), bg="#F4FE82"
 )
 resetBtn =Button(
-    root, text ="Reset", padx=65, pady=25, width=10, bd=5, font=('Arial',15), bg="#F398FF"
+    root, text ="Reset", padx=65, pady=25, width=10, bd=5, font=('Arial',15), bg="#F398FF", command=reset
 )
 selectBtn =Button(
-    root, text ="Select", padx=65, pady=25, width=10, bd=5, font=('Arial',15), bg="#EEEEEE"
+    root, text ="Select", padx=65, pady=25, width=10, bd=5, font=('Arial',15), bg="#EEEEEE", command=select
 )
 
 addBtn.grid(row=3, column=5, columnspan=1, rowspan=2)
