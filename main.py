@@ -114,7 +114,7 @@ def reset():
     refreshTable()
     
 def delete():
-    desicion=messagebox.askquestion("warning!!", "Delete all selected data?")
+    desicion=messagebox.askquestion("warning!!", "Delete the selected data?")
     if desicion != "yes":
         return
     else:
@@ -133,11 +133,7 @@ def delete():
     refreshTable() 
 
 def select():
-    desicion=messagebox.askquestion("warning!!", "Delete all selected data?")
-    if desicion != "yes":
-        return
-    else:
-        try:
+    try:
         selected_item=my_tree.selection()[0]
         studid= str(my_tree.item(selected_item)['values'][0])
         fname= str(my_tree.item(selected_item)['values'][1])
@@ -155,6 +151,34 @@ def select():
             return
 
     refreshTable()
+
+def search():
+        studid = str(studidEntry.get())
+        fnameid = str(fnameEntry.get())
+        lnameid = str(lnameEntry.get())
+        addressid = str(addressEntry.get())
+        phoneid = str(phoneEntry.get())
+
+        conn = connection()
+        Cursor = conn.cursor()
+        Cursor.execute("SELECT * FROM student WHERE STUDID='"+
+        studid+"' or FNAME='"+
+        fname+"' or LNAME='"+
+        lname+"' or ADDRESS='"+
+        address+"' or PHONE='"+
+        phone+"' ")
+
+        try:
+        result=Cursor.fetchall()
+        
+        for num in range(0,5):
+            setph(result[0][num], (num+1))
+
+        conn.commit()
+        conn.close()
+    except:
+        messagebox.showinfo("Error","No data found")
+
 
     
 #gui 
@@ -174,11 +198,11 @@ addressLabel.grid(row=6,column=0,columnspan=1,padx=50,pady=5)
 phoneLabel.grid(row=7,column=0,columnspan=1,padx=50,pady=5)
 
  #textvariabel 
-studidEntry = Entry(root, width=55, bd=5, font=('Arial', 15))
-fnameEntry = Entry(root, width=55, bd=5, font=('Arial', 15))
-lnameEntry = Entry(root, width=55, bd=5, font=('Arial', 15))
-addressEntry = Entry(root, width=55, bd=5, font=('Arial', 15))
-phoneEntry = Entry(root, width=55, bd=5, font=('Arial', 15))
+studidEntry = Entry(root, width=55, bd=5, font=('Arial', 15), textvariable=ph1)
+fnameEntry = Entry(root, width=55, bd=5, font=('Arial', 15), textvariable=ph2)
+lnameEntry = Entry(root, width=55, bd=5, font=('Arial', 15), textvariable=ph3)
+addressEntry = Entry(root, width=55, bd=5, font=('Arial', 15), textvariable=ph4)
+phoneEntry = Entry(root, width=55, bd=5, font=('Arial', 15), textvariable=ph5)
 
 studidEntry.grid(row=3, column=1, columnspan=4, padx=5, pady=0)
 fnameEntry.grid(row=4, column=1, columnspan=4, padx=5, pady=0)
@@ -198,7 +222,7 @@ deleteBtn =Button(
     root, text ="Delete", padx=65, pady=25, width=10, bd=5, font=('Arial',15), bg="#FF9999", command=delete
 )
 searchBtn =Button(
-    root, text ="Search", padx=65, pady=25, width=10, bd=5, font=('Arial',15), bg="#F4FE82"
+    root, text ="Search", padx=65, pady=25, width=10, bd=5, font=('Arial',15), bg="#F4FE82", command=search
 )
 resetBtn =Button(
     root, text ="Reset", padx=65, pady=25, width=10, bd=5, font=('Arial',15), bg="#F398FF", command=reset
