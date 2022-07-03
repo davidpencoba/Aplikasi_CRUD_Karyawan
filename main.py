@@ -1,8 +1,10 @@
+from ast import Try
 from asyncore import read
 import bdb
 from cProfile import label
 import imp
 from logging import root
+from shutil import register_unpack_format
 from sqlite3 import Cursor
 from tkinter import font
 from tkinter.tix import COLUMN
@@ -12,6 +14,8 @@ from tkinter import *
 from tkinter import ttk
 from tkinter import messagebox
 import tkinter as tk
+
+from setuptools import Command
 
 
 #connection
@@ -140,7 +144,7 @@ def select():
         lname= str(my_tree.item(selected_item)['values'][2])
         address= str(my_tree.item(selected_item)['values'][3])
         phone= str(my_tree.item(selected_item)['values'][4])
-         
+
         setph(studid, 1)
         setph(fname, 2)
         setph(lname, 3)
@@ -148,37 +152,72 @@ def select():
         setph(phone, 5)
     except:
             messagebox.showinfo("Error", "Please select a data row")
-            return
-
-    refreshTable()
-
+           
 def search():
-        studid = str(studidEntry.get())
-        fnameid = str(fnameEntry.get())
-        lnameid = str(lnameEntry.get())
-        addressid = str(addressEntry.get())
-        phoneid = str(phoneEntry.get())
+    studid = str(studidEntry.get())
+    fname = str(fnameEntry.get())
+    lname = str(lnameEntry.get())
+    address = str(addressEntry.get())
+    phone = str(phoneEntry.get())
 
-        conn = connection()
-        Cursor = conn.cursor()
-        Cursor.execute("SELECT * FROM student WHERE STUDID='"+
-        studid+"' or FNAME='"+
-        fname+"' or LNAME='"+
-        lname+"' or ADDRESS='"+
-        address+"' or PHONE='"+
-        phone+"' ")
+    conn = connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM student WHERE STUDID='"+
+    studid+"' or FNAME='"+
+    fname+"' or LNAME='"+
+    lname+"' or ADDRESS='"+
+    address+"' or PHONE='"+
+    phone+"' ")
+    
+    try:
+        result = cursor.fetchall()
 
-        try:
-        result=Cursor.fetchall()
-        
         for num in range(0,5):
-            setph(result[0][num], (num+1))
+            setph(result[0][num],(num+1))
 
         conn.commit()
         conn.close()
     except:
-        messagebox.showinfo("Error","No data found")
+        messagebox.showinfo("Error", "No data found")
 
+def update():
+    selectedStudid = ""
+
+    try:
+        selected_item = my_tree.selection()[0]
+        selectedStudid = str(my_tree.item(selected_item)['values'][0])
+    except:
+        messagebox.showinfo("Error", "Please select a data row")
+
+    studid = str(studidEntry.get())
+    fname = str(fnameEntry.get())
+    lname = str(lnameEntry.get())
+    address = str(addressEntry.get())
+    phone = str(phoneEntry.get())
+
+    if (studid == "" or studid == " ") or (fname == "" or fname == " ") or (lname == "" or lname == " ") or (address == "" or address == " ") or (phone == "" or phone == " "):
+        messagebox.showinfo("Error", "Please fill up the blank entry")
+        return
+    else:
+        try:
+            conn = connection()
+            cursor = conn.cursor()
+            cursor.execute("UPDATE students SET STUDID='"+
+            studid+"', FNAME='"+
+            fname+"', LNAME='"+
+            lname+"', ADDRESS='"+
+            address+"', PHONE='"+
+            phone+"' WHERE STUDID='"+
+            selectedStudid+"' ")
+            conn.commit()
+            conn.close()
+        except:
+            messagebox.showinfo("Error", "Stud ID already exist")
+            return
+
+    refreshTable()
+
+         
 
     
 #gui 
@@ -213,22 +252,22 @@ phoneEntry.grid(row=7, column=1, columnspan=4, padx=5, pady=0)
 
 #command 
 addBtn =Button(
-    root, text ="Add", padx=65, pady=25, width=10, bd=5, font=('Arial',15), bg="#84f894", command=add
+    root, text ="Add", padx=65, pady=25, width=10, bd=5, font=('Arial',15), bg="#84f894",command=add
 )
 updateBtn =Button(
-    root, text ="Update", padx=65, pady=25, width=10, bd=5, font=('Arial',15), bg="#84E8F8"
+    root, text ="Update", padx=65, pady=25, width=10, bd=5, font=('Arial',15), bg="#84E8F8",command=update
 )
 deleteBtn =Button(
-    root, text ="Delete", padx=65, pady=25, width=10, bd=5, font=('Arial',15), bg="#FF9999", command=delete
+    root, text ="Delete", padx=65, pady=25, width=10, bd=5, font=('Arial',15), bg="#FF9999",command=delete
 )
 searchBtn =Button(
     root, text ="Search", padx=65, pady=25, width=10, bd=5, font=('Arial',15), bg="#F4FE82", command=search
 )
 resetBtn =Button(
-    root, text ="Reset", padx=65, pady=25, width=10, bd=5, font=('Arial',15), bg="#F398FF", command=reset
+    root, text ="Reset", padx=65, pady=25, width=10, bd=5, font=('Arial',15), bg="#F398FF",command=reset
 )
 selectBtn =Button(
-    root, text ="Select", padx=65, pady=25, width=10, bd=5, font=('Arial',15), bg="#EEEEEE", command=select
+    root, text ="Select", padx=65, pady=25, width=10, bd=5, font=('Arial',15), bg="#EEEEEE",command=select
 )
 
 addBtn.grid(row=3, column=5, columnspan=1, rowspan=2)
